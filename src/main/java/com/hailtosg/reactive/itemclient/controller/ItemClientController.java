@@ -81,4 +81,25 @@ public class ItemClientController {
                 .flatMap(clientResponse -> clientResponse.bodyToMono(Item.class))
                 .log("Created single item in Client Project exchange");
     }
+    @PutMapping(CLIENT_RETRIEVE + ID_SUFFIX)
+    public Mono<Item> updateOneUsingRetrieve(@PathVariable String id, @RequestBody Item item) {
+        return webClient
+                .put()
+                .uri(ITEMS_END_POINT_V1 + ID_SUFFIX, id, item)
+                .body(Mono.just(item), Item.class)
+                .retrieve()
+                .bodyToMono(Item.class)
+                .log("single item updated in Client Project retrieve");
+    }
+
+    @PutMapping(CLIENT_EXCHANGE + ID_SUFFIX)
+    public Mono<Item> updateOneUsingExchange(@PathVariable String id, @RequestBody Item item) {
+        return webClient
+                .put()
+                .uri(ITEMS_END_POINT_V1 + ID_SUFFIX, id, item)
+                .body(Mono.just(item), Item.class)
+                .exchange()
+                .flatMap(clientResponse -> clientResponse.bodyToMono(Item.class))
+                .log("single item updated in Client Project exchange");
+    }
 }
