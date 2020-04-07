@@ -1,10 +1,11 @@
 package com.hailtosg.reactive.itemclient.controller;
 
 import com.hailtosg.reactive.itemclient.domain.Item;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,7 +14,6 @@ import static com.hailtosg.reactive.itemclient.constants.ItemConstants.*;
 
 @RestController
 @Slf4j
-@RequiredArgsConstructor
 public class ItemClientController {
 
     WebClient webClient = WebClient.create("http://localhost:8080");
@@ -81,6 +81,7 @@ public class ItemClientController {
                 .flatMap(clientResponse -> clientResponse.bodyToMono(Item.class))
                 .log("Created single item in Client Project exchange");
     }
+
     @PutMapping(CLIENT_RETRIEVE + ID_SUFFIX)
     public Mono<Item> updateOneUsingRetrieve(@PathVariable String id, @RequestBody Item item) {
         return webClient
@@ -101,5 +102,15 @@ public class ItemClientController {
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.bodyToMono(Item.class))
                 .log("single item updated in Client Project exchange");
+    }
+
+    @DeleteMapping(CLIENT_EXCHANGE + ID_SUFFIX)
+    public Mono<HttpStatus> deleteOneUsingExchange(@PathVariable String id) {
+        return webClient
+                .delete()
+                .uri(ITEMS_END_POINT_V1 + ID_SUFFIX, id)
+                .exchange()
+                .map(ClientResponse::statusCode)
+                .log("single item deleted in Client Project exchange");
     }
 }
